@@ -1,46 +1,23 @@
-from sklearn.datasets import load_iris
-from sklearn.neighbors import KNeighborsClassifier
-import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn import datasets
 
-iris_data = load_iris()
+iris_data = datasets.load_iris()
+print("Iris Data set loaded...")
 
-# Display the iris dataset
-print("\n IRIS FEATURES \ TARGET NAMES: \n ", iris_data.target_names)
+x_train, x_test, y_train, y_test = train_test_split(iris_data.data, iris_data.target, test_size=0.1)
+# random_state=0
+
 for i in range(len(iris_data.target_names)):
-    print("\n[{0}]:[{1}]".format(i, iris_data.target_names[i]))
+    print("Label", i, "-", str(iris_data.target_names[i]))
 
-print("\n IRIS DATA :\n", iris_data["data"])
+knn_classifier = KNeighborsClassifier(n_neighbors=2)
+knn_classifier.fit(x_train, y_train)
+y_pred = knn_classifier.predict(x_test)
 
-# Split the data into training and testing data
-X_train, X_test, y_train, y_test = train_test_split(iris_data["data"], iris_data["target"], random_state=0)
-print("\n Target :\n", iris_data["target"])
-print("\n X TRAIN \n", X_train)
-print("\n X TEST \n", X_test)
-print("\n Y TRAIN \n", y_train)
-print("\n Y TEST \n", y_test)
+print("Results of Classification using K-nn with K=1 ")
 
-# Train and fit the model
-k_neighbors_classifier = KNeighborsClassifier(n_neighbors=5)
-k_neighbors_classifier.fit(X_train, y_train)
+for r in range(0, len(x_test)):
+    print(" Sample:", str(x_test[r]), " Actual-label:", str(y_test[r]), " Predicted-label:", str(y_pred[r]))
 
-# Predicting from the model
-new_sample = np.array([[5, 2.9, 1, 0.2]])
-print("\n XNEW \n", new_sample)
-prediction = k_neighbors_classifier.predict(new_sample)
-print("\n Predicted target value: {}\n".format(prediction))
-print("\n Predicted feature name: {}\n".format(iris_data["target_names"][prediction]))
-
-# Display predictions for each test example
-for i in range(len(X_test)):
-    test_sample = X_test[i]
-    new_test_sample = np.array([test_sample])
-    prediction = k_neighbors_classifier.predict(new_test_sample)
-    print("\n Actual : {0} {1}, Predicted :{2}{3}".format(
-        y_test[i],
-        iris_data["target_names"][y_test[i]],
-        prediction,
-        iris_data["target_names"][prediction]
-    ))
-
-print("\n TEST SCORE[ACCURACY]: {:.2f}\n".format(k_neighbors_classifier.score(X_test, y_test)))
+print("Classification Accuracy :", knn_classifier.score(x_test, y_test))
