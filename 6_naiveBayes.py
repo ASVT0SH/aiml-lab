@@ -71,7 +71,7 @@ def calculate_accuracy(test_set, predictions):
     correct = sum(1 for i in range(len(test_set)) if test_set[i][-1] == predictions[i])
     return (correct / len(test_set)) * 100.0
 
-filename = 'pima-indians-diabetes.csv'
+filename = 'datasets/pima-indians-diabetes.csv'
 split_ratio = 0.67
 dataset = load_csv(filename)
 training_set, test_set = split_dataset(dataset, split_ratio)

@@ -1,98 +1,108 @@
 class Graph:
-    def __init__(self, adjacency_list, heuristic_values, start_node):
-        # Instantiate a graph object with the graph topology, heuristic values, and start node
-        self.adjacency_list = adjacency_list
-        self.heuristic_values = heuristic_values
-        self.start_node = start_node
-        self.parent_nodes = {}
-        self.node_status = {}
-        self.solution_graph = {}
+    def __init__(self, graph, heuristicNodeList, startNode):
+        # Instantiate graph object with graph topology, heuristic values, and start node
+        self.graph = graph
+        self.H = heuristicNodeList
+        self.start = startNode
+        self.parent = {}
+        self.status = {}
+        self.solutionGraph = {}
 
     def apply_ao_star(self):
-        # Start the recursive AO* algorithm
-        self.ao_star(self.start_node, False)
+        # Start a recursive AO* algorithm
+        self.aoStar(self.start, False)
 
-    def get_neighbors(self, node):
+    def getNeighbors(self, v):
         # Get the neighbors of a given node
-        return self.adjacency_list.get(node, [])
+        return self.graph.get(v, '')
 
-    def get_node_status(self, node):
+    def getStatus(self, v):
         # Return the status of a given node
-        return self.node_status.get(node, 0)
+        return self.status.get(v, 0)
 
-    def set_node_status(self, node, value):
+    def setStatus(self, v, val):
         # Set the status of a given node
-        self.node_status[node] = value
+        self.status[v] = val
 
-    def get_heuristic_value(self, node):
+    def getHeuristicNodeValue(self, n):
         # Return the heuristic value of a given node
-        return self.heuristic_values.get(node, 0)
+        return self.H.get(n, 0)
 
-    def set_heuristic_value(self, node, value):
+    def setHeuristicNodeValue(self, n, value):
         # Set the revised heuristic value of a given node
-        self.heuristic_values[node] = value
+        self.H[n] = value
 
     def print_solution(self):
         # Print the solution graph
-        print("FOR GRAPH SOLUTION, TRAVERSE THE GRAPH FROM THE START NODE:", self.start_node)
+        print("FOR GRAPH SOLUTION, TRAVERSE THE GRAPH FROM THE START NODE:", self.start)
         print("------------------------------------------------------------")
-        print(self.solution_graph)
+        print(self.solutionGraph)
         print("------------------------------------------------------------")
 
-    def compute_minimum_cost_child_nodes(self, node):
-        # Computes the Minimum Cost of child nodes of a given node
-        minimum_cost = 0
-        cost_to_child_node_list_dict = {minimum_cost: []}
+    def computeMinimumCostChildNodes(self, v):
+        # Computes the Minimum Cost of child nodes of a given node v
+        minimumCost = 0
+        costToChildNodeListDict = {}
+        costToChildNodeListDict[minimumCost] = []
         flag = True
 
-        for neighbors_list in self.get_neighbors(node):
+        for nodeInfoTupleList in self.getNeighbors(v):
             cost = 0
-            node_list = []
+            nodeList = []
 
-            for child_node, weight in neighbors_list:
-                cost += self.get_heuristic_value(child_node) + weight
-                node_list.append(child_node)
+            for c, weight in nodeInfoTupleList:
+                cost = cost + self.getHeuristicNodeValue(c) + weight
+                nodeList.append(c)
 
             if flag:
-                minimum_cost = cost
-                cost_to_child_node_list_dict[minimum_cost] = node_list
+                minimumCost = cost
+                costToChildNodeListDict[minimumCost] = nodeList
                 flag = False
             else:
-                if minimum_cost > cost:
-                    minimum_cost = cost
-                    cost_to_child_node_list_dict[minimum_cost] = node_list
+                if minimumCost > cost:
+                    minimumCost = cost
+                    costToChildNodeListDict[minimumCost] = nodeList
 
-        return minimum_cost, cost_to_child_node_list_dict[minimum_cost]
+        return minimumCost, costToChildNodeListDict[minimumCost]
 
-    def ao_star(self, node, back_tracking):
-        # AO* algorithm for a start node and backtracking status flag
-        print("HEURISTIC VALUES:", self.heuristic_values)
-        print("SOLUTION GRAPH:", self.solution_graph)
-        print("PROCESSING NODE:", node)
+    def aoStar(self, v, backTracking):
+        # AO* algorithm for a start node and backTracking status flag
+        print("HEURISTIC VALUES :", self.H)
+        print("SOLUTION GRAPH :", self.solutionGraph)
+        print("PROCESSING NODE :", v)
         print("-----------------------------------------------------------------------------------------")
 
-        if self.get_node_status(node) >= 0:
-            minimum_cost, child_node_list = self.compute_minimum_cost_child_nodes(node)
-            self.set_heuristic_value(node, minimum_cost)
-            self.set_node_status(node, len(child_node_list))
+        if self.getStatus(v) >= 0:
+            # If status node v >= 0, compute Minimum Cost nodes of v
+            minimumCost, childNodeList = self.computeMinimumCostChildNodes(v)
+            self.setHeuristicNodeValue(v, minimumCost)
+            self.setStatus(v, len(childNodeList))
 
             solved = True
-            for child_node in child_node_list:
-                self.parent_nodes[child_node] = node
-                if self.get_node_status(child_node) != -1:
+            # Check the Minimum Cost nodes of v are solved
+            for childNode in childNodeList:
+                self.parent[childNode] = v
+                if self.getStatus(childNode) != -1:
                     solved = solved and False
 
             if solved:
-                self.set_node_status(node, -1)
-                self.solution_graph[node] = child_node_list
+                # If the Minimum Cost nodes of v are solved, set the current node status as solved(-1)
+                self.setStatus(v, -1)
+                # Update the solution graph with the solved nodes, which may be a part of the solution
+                self.solutionGraph[v] = childNodeList
 
-            if node != self.start_node and back_tracking:
-                self.ao_star(self.parent_nodes[node], True)
+            if v != self.start:
+                # Check if the current node is the start node for backtracking the current node value
+                self.aoStar(self.parent[v], True)
 
-            if not back_tracking:
-                for child_node in child_node_list:
-                    self.set_node_status(child_node, 0)
-                    self.ao_star(child_node, False)
+            if not backTracking:
+                # Check if the current call is not for backtracking
+                for childNode in childNodeList:
+                    # For each Minimum Cost child node
+                    self.setStatus(childNode, 0)
+                    # Set the status of child node to 0 (needs exploration)
+                    self.aoStar(childNode, False)
+
 
 h1 = {'A': 1, 'B': 6, 'C': 2, 'D': 12, 'E': 2, 'F': 1, 'G': 5, 'H': 7, 'I': 7, 'J': 1, 'T': 3}
 graph1 = {
@@ -105,14 +115,3 @@ graph1 = {
 g1 = Graph(graph1, h1, 'A')
 g1.apply_ao_star()
 g1.print_solution()
-
-h2 = {'A': 1, 'B': 6, 'C': 12, 'D': 10, 'E': 4, 'F': 4, 'G': 5, 'H': 7}
-graph2 = {
-    'A': [[('B', 1), ('C', 1)], [('D', 1)]],
-    'B': [[('G', 1)], [('H', 1)]],
-    'D': [[('E', 1), ('F', 1)]]
-}
-
-g2 = Graph(graph2, h2, 'A')
-g2.apply_ao_star()
-g2.print_solution()
