@@ -86,7 +86,7 @@ def get_next_node(data, attribute_list, concept, concept_values, tree, add_to):
 def main():
     import pandas as pd
 
-    data = pd.read_csv('id3.csv')
+    data = pd.read_csv('datasets/traintennis.csv')
     attribute_list = list(data)[:-1]
     target_concept = str(list(data)[-1])
     target_concept_values = list(set(data[target_concept]))
