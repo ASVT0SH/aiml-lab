@@ -92,6 +92,6 @@ def main():
     target_concept_values = list(set(data[target_concept]))
     decision_tree = get_next_node(data, attribute_list, target_concept, target_concept_values, {'root': 'None'}, 'root')
     print(decision_tree)
-    # compute(decision_tree)  # You have a call to compute(tree), but the compute function is not provided.
+    
 
 main()
